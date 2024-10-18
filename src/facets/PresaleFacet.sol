@@ -6,17 +6,14 @@ import {IERC721} from "../interfaces/IERC721.sol";
 import {LibDiamond} from "../libraries/LibDiamond.sol";
 
 contract PresaleFacet is IPresale {
-    function enforceIsActive(
-        LibDiamond.DiamondStorage storage ds
-    ) internal view {
+    function enforceIsActive(LibDiamond.DiamondStorage storage ds) internal view {
         if (!ds.presaleActive) revert PresaleNotActive();
     }
 
-    function enforcehasNotExceededMaxPurchase(
-        LibDiamond.DiamondStorage storage ds
-    ) internal view {
-        if (ds.purchases[msgSender()] >= ds.maxPurchase)
+    function enforcehasNotExceededMaxPurchase(LibDiamond.DiamondStorage storage ds) internal view {
+        if (ds.purchases[msgSender()] >= ds.maxPurchase) {
             revert MaxPurchaseExceeded();
+        }
     }
 
     function msgSender() internal view returns (address) {
@@ -34,15 +31,12 @@ contract PresaleFacet is IPresale {
         enforcehasNotExceededMaxPurchase(ds);
 
         if (msgValue() != ds.presalePrice) revert IncorrectEtherAmount();
-        if (IERC721(ds.nftContract).ownerOf(tokenId) != address(this))
+        if (IERC721(ds.nftContract).ownerOf(tokenId) != address(this)) {
             revert NFTNotAvailable();
+        }
 
         ds.purchases[msg.sender]++;
-        IERC721(ds.nftContract).transferFrom(
-            address(this),
-            msg.sender,
-            tokenId
-        );
+        IERC721(ds.nftContract).transferFrom(address(this), msg.sender, tokenId);
 
         emit NFTPurchased(msg.sender, tokenId);
     }

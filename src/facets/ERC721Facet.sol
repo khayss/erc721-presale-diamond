@@ -13,14 +13,10 @@ contract ERC721Facet is IERC721 {
     /**
      * @dev See {IERC165-supportsInterface}.
      */
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view virtual override returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
         LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
-        return
-            interfaceId == type(IERC721).interfaceId ||
-            interfaceId == type(IERC721Metadata).interfaceId ||
-            ds.supportedInterfaces[interfaceId];
+        return interfaceId == type(IERC721).interfaceId || interfaceId == type(IERC721Metadata).interfaceId
+            || ds.supportedInterfaces[interfaceId];
     }
 
     /**
@@ -64,16 +60,11 @@ contract ERC721Facet is IERC721 {
     /**
      * @dev See {IERC721Metadata-tokenURI}.
      */
-    function tokenURI(
-        uint256 tokenId
-    ) public view virtual returns (string memory) {
+    function tokenURI(uint256 tokenId) public view virtual returns (string memory) {
         _requireOwned(tokenId);
 
         string memory baseURI = _baseURI();
-        return
-            bytes(baseURI).length > 0
-                ? string.concat(baseURI, tokenId.toString())
-                : "";
+        return bytes(baseURI).length > 0 ? string.concat(baseURI, tokenId.toString()) : "";
     }
 
     /**
@@ -95,9 +86,7 @@ contract ERC721Facet is IERC721 {
     /**
      * @dev See {IERC721-getApproved}.
      */
-    function getApproved(
-        uint256 tokenId
-    ) public view virtual returns (address) {
+    function getApproved(uint256 tokenId) public view virtual returns (address) {
         _requireOwned(tokenId);
 
         return _getApproved(tokenId);
@@ -113,10 +102,7 @@ contract ERC721Facet is IERC721 {
     /**
      * @dev See {IERC721-isApprovedForAll}.
      */
-    function isApprovedForAll(
-        address owner,
-        address operator
-    ) public view virtual returns (bool) {
+    function isApprovedForAll(address owner, address operator) public view virtual returns (bool) {
         LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
         return ds._operatorApprovals[owner][operator];
     }
@@ -124,11 +110,7 @@ contract ERC721Facet is IERC721 {
     /**
      * @dev See {IERC721-transferFrom}.
      */
-    function transferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) public virtual {
+    function transferFrom(address from, address to, uint256 tokenId) public virtual {
         if (to == address(0)) {
             revert ERC721InvalidReceiver(address(0));
         }
@@ -143,31 +125,16 @@ contract ERC721Facet is IERC721 {
     /**
      * @dev See {IERC721-safeTransferFrom}.
      */
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) public {
+    function safeTransferFrom(address from, address to, uint256 tokenId) public {
         safeTransferFrom(from, to, tokenId, "");
     }
 
     /**
      * @dev See {IERC721-safeTransferFrom}.
      */
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId,
-        bytes memory data
-    ) public virtual {
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public virtual {
         transferFrom(from, to, tokenId);
-        ERC721Utils.checkOnERC721Received(
-            _msgSender(),
-            from,
-            to,
-            tokenId,
-            data
-        );
+        ERC721Utils.checkOnERC721Received(_msgSender(), from, to, tokenId, data);
     }
 
     /**
@@ -187,9 +154,7 @@ contract ERC721Facet is IERC721 {
     /**
      * @dev Returns the approved address for `tokenId`. Returns 0 if `tokenId` is not minted.
      */
-    function _getApproved(
-        uint256 tokenId
-    ) internal view virtual returns (address) {
+    function _getApproved(uint256 tokenId) internal view virtual returns (address) {
         LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
 
         return ds._tokenApprovals[tokenId];
@@ -202,16 +167,9 @@ contract ERC721Facet is IERC721 {
      * WARNING: This function assumes that `owner` is the actual owner of `tokenId` and does not verify this
      * assumption.
      */
-    function _isAuthorized(
-        address owner,
-        address spender,
-        uint256 tokenId
-    ) internal view virtual returns (bool) {
-        return
-            spender != address(0) &&
-            (owner == spender ||
-                isApprovedForAll(owner, spender) ||
-                _getApproved(tokenId) == spender);
+    function _isAuthorized(address owner, address spender, uint256 tokenId) internal view virtual returns (bool) {
+        return spender != address(0)
+            && (owner == spender || isApprovedForAll(owner, spender) || _getApproved(tokenId) == spender);
     }
 
     /**
@@ -223,11 +181,7 @@ contract ERC721Facet is IERC721 {
      * WARNING: This function assumes that `owner` is the actual owner of `tokenId` and does not verify this
      * assumption.
      */
-    function _checkAuthorized(
-        address owner,
-        address spender,
-        uint256 tokenId
-    ) internal view virtual {
+    function _checkAuthorized(address owner, address spender, uint256 tokenId) internal view virtual {
         if (!_isAuthorized(owner, spender, tokenId)) {
             if (owner == address(0)) {
                 revert ERC721NonexistentToken(tokenId);
@@ -265,11 +219,7 @@ contract ERC721Facet is IERC721 {
      *
      * NOTE: If overriding this function in a way that tracks balances, see also {_increaseBalance}.
      */
-    function _update(
-        address to,
-        uint256 tokenId,
-        address auth
-    ) internal virtual returns (address) {
+    function _update(address to, uint256 tokenId, address auth) internal virtual returns (address) {
         LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
 
         address from = _ownerOf(tokenId);
@@ -342,19 +292,9 @@ contract ERC721Facet is IERC721 {
      * @dev Same as {xref-ERC721-_safeMint-address-uint256-}[`_safeMint`], with an additional `data` parameter which is
      * forwarded in {IERC721Receiver-onERC721Received} to contract recipients.
      */
-    function _safeMint(
-        address to,
-        uint256 tokenId,
-        bytes memory data
-    ) internal virtual {
+    function _safeMint(address to, uint256 tokenId, bytes memory data) internal virtual {
         _mint(to, tokenId);
-        ERC721Utils.checkOnERC721Received(
-            _msgSender(),
-            address(0),
-            to,
-            tokenId,
-            data
-        );
+        ERC721Utils.checkOnERC721Received(_msgSender(), address(0), to, tokenId, data);
     }
 
     /**
@@ -425,20 +365,9 @@ contract ERC721Facet is IERC721 {
      * @dev Same as {xref-ERC721-_safeTransfer-address-address-uint256-}[`_safeTransfer`], with an additional `data` parameter which is
      * forwarded in {IERC721Receiver-onERC721Received} to contract recipients.
      */
-    function _safeTransfer(
-        address from,
-        address to,
-        uint256 tokenId,
-        bytes memory data
-    ) internal virtual {
+    function _safeTransfer(address from, address to, uint256 tokenId, bytes memory data) internal virtual {
         _transfer(from, to, tokenId);
-        ERC721Utils.checkOnERC721Received(
-            _msgSender(),
-            from,
-            to,
-            tokenId,
-            data
-        );
+        ERC721Utils.checkOnERC721Received(_msgSender(), from, to, tokenId, data);
     }
 
     /**
@@ -459,23 +388,14 @@ contract ERC721Facet is IERC721 {
      * @dev Variant of `_approve` with an optional flag to enable or disable the {Approval} event. The event is not
      * emitted in the context of transfers.
      */
-    function _approve(
-        address to,
-        uint256 tokenId,
-        address auth,
-        bool emitEvent
-    ) internal virtual {
+    function _approve(address to, uint256 tokenId, address auth, bool emitEvent) internal virtual {
         LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
         // Avoid reading the owner unless necessary
         if (emitEvent || auth != address(0)) {
             address owner = _requireOwned(tokenId);
 
             // We do not use _isAuthorized because single-token approvals should not be able to call approve
-            if (
-                auth != address(0) &&
-                owner != auth &&
-                !isApprovedForAll(owner, auth)
-            ) {
+            if (auth != address(0) && owner != auth && !isApprovedForAll(owner, auth)) {
                 revert ERC721InvalidApprover(auth);
             }
 
@@ -495,11 +415,7 @@ contract ERC721Facet is IERC721 {
      *
      * Emits an {ApprovalForAll} event.
      */
-    function _setApprovalForAll(
-        address owner,
-        address operator,
-        bool approved
-    ) internal virtual {
+    function _setApprovalForAll(address owner, address operator, bool approved) internal virtual {
         LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
 
         if (operator == address(0)) {

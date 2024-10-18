@@ -33,14 +33,7 @@ contract DiamondDeployer is DiamondUtils, IDiamondCut {
         dCutFacet = new DiamondCutFacet();
         erc721Facet = new ERC721Facet();
         diamond = new Diamond(
-            address(this),
-            address(dCutFacet),
-            address(erc721Facet),
-            "Web3Bridge",
-            "W3CXI",
-            0.1 ether,
-            10,
-            true
+            address(this), address(dCutFacet), address(erc721Facet), "Web3Bridge", "W3CXI", 0.1 ether, 10, true
         );
         dLoupe = new DiamondLoupeFacet();
         ownerF = new OwnershipFacet();
@@ -81,9 +74,5 @@ contract DiamondDeployer is DiamondUtils, IDiamondCut {
         DiamondLoupeFacet(address(diamond)).facetAddresses();
     }
 
-    function diamondCut(
-        FacetCut[] calldata _diamondCut,
-        address _init,
-        bytes calldata _calldata
-    ) external override {}
+    function diamondCut(FacetCut[] calldata _diamondCut, address _init, bytes calldata _calldata) external override {}
 }
